@@ -12,6 +12,7 @@ w_type: 'single' # single or multi
 w_channel: 3
 w_radius: 10
 w_seed: 10
+order: 0.5
 
 # for updating
 start_latents: 'init_w' # 'init', 'init_w', 'rand', 'rand_w'
