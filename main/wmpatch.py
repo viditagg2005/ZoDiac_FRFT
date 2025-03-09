@@ -74,7 +74,7 @@ class GTWatermark():
         target_patch = self.gt_patch[self.watermarking_mask].flatten()
         target_patch = torch.concatenate([target_patch.real, target_patch.imag])
 
-        reversed_latents_w_fft = torch.fft.fftshift(torch.fft.fft2(latents), dim=(-1, -2))[self.watermarking_mask].flatten()
+        reversed_latents_w_fft = torch.fft.fftshift(frft2d(latents), dim=(-1, -2))[self.watermarking_mask].flatten()
         reversed_latents_w_fft = torch.concatenate([reversed_latents_w_fft.real, reversed_latents_w_fft.imag])
         
         sigma_w = reversed_latents_w_fft.std()
