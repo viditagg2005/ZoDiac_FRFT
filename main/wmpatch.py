@@ -3,7 +3,7 @@ from scipy.stats import norm
 import scipy
 import torch
 from diffusers.utils.torch_utils import randn_tensor
-from frft import *
+from main.frft import *
 class GTWatermark():
     def __init__(self, device, shape=(1,4,64,64), dtype=torch.float32, w_channel=3, w_radius=10, generator=None):
         self.device = device
