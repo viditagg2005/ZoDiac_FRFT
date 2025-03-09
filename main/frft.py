@@ -99,7 +99,7 @@ def dfrtmtrx(N, a, device=None):
     
     return F
 
-def frft2d(image, order=0.8):
+def frft2d(image, order=1.0):
     """
     Calculate the 2D Fractional Fourier Transform of an image.
     
