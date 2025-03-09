@@ -3,7 +3,7 @@ from scipy.stats import norm
 import scipy
 import torch
 from diffusers.utils.torch_utils import randn_tensor
-
+from frft import *
 class GTWatermark():
     def __init__(self, device, shape=(1,4,64,64), dtype=torch.float32, w_channel=3, w_radius=10, generator=None):
         self.device = device
@@ -27,7 +27,7 @@ class GTWatermark():
         return ((x - x0)**2 + (y-y0)**2)<= r**2
 
     def _get_watermarking_pattern(self, gt_init): # in fft space
-        gt_patch = torch.fft.fftshift(torch.fft.fft2(gt_init), dim=(-1, -2))
+        gt_patch = torch.fft.fftshift(frft2d(gt_init), dim=(-1, -2))
         for i in range(self.w_radius, 0, -1): # from outer circle to inner circle
             tmp_mask = torch.tensor(self._circle_mask(gt_init.shape[-1], r=i)).to(self.device) # circle mask in bool value
             gt_patch[:, self.w_channel, tmp_mask] = gt_patch[0, self.w_channel, 0, i].item() # set the value inside the circle to be a value from Gaussian Distribution
@@ -45,14 +45,14 @@ class GTWatermark():
         return gt_patch, watermarking_mask
 
     def inject_watermark(self, latents): 
-        latents_fft = torch.fft.fftshift(torch.fft.fft2(latents), dim=(-1, -2))
+        latents_fft = torch.fft.fftshift(frft2d(latents), dim=(-1, -2))
         # latents_fft[self.watermarking_mask] = self.gt_patch[self.watermarking_mask].clone()
         latents_fft = latents_fft * ~(self.watermarking_mask) + self.gt_patch * self.watermarking_mask
-        latents_w = torch.fft.ifft2(torch.fft.ifftshift(latents_fft, dim=(-1, -2))).real
+        latents_w = ifrft2d(torch.fft.ifftshift(latents_fft, dim=(-1, -2))).real
         return latents_w
 
     def eval_watermark(self, latents_w):
-        latents_w_fft = torch.fft.fftshift(torch.fft.fft2(latents_w), dim=(-1, -2))
+        latents_w_fft = torch.fft.fftshift(frft2d(latents_w), dim=(-1, -2))
         l1_metric = torch.abs(latents_w_fft[self.watermarking_mask] - self.gt_patch[self.watermarking_mask]).mean().item()
         return l1_metric
 
